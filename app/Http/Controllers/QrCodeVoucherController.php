@@ -12,7 +12,12 @@ class QrCodeVoucherController extends Controller
 {
     //
     public function index(Request $request){
+
+        
         $skrg = Carbon::now()->format('Y-m-d');
+        $bulan_tahun = Carbon::now()->addMonth(1)->format('Y-m');
+        $tgl_exp = $bulan_tahun."-05";
+       
         $cek = QrCodeVoucherModel::select('created_at')
                 ->whereDate('created_at',Carbon::today())->first();
         if(empty($cek)){
@@ -24,7 +29,7 @@ class QrCodeVoucherController extends Controller
                             'id_guest_list' => $list->id,
                             'status' => 0,
                             'nominal' => 0,
-                            'expired_date' =>'2023-11-05'
+                            'expired_date' =>$tgl_exp
                         ]
                     );
                 }
@@ -46,10 +51,30 @@ class QrCodeVoucherController extends Controller
         $data =  QrCodeVoucherModel::select('*')
                 ->join('guest_list','qrcode_voucher.id_guest_list', 'guest_list.id')
                 ->where('code',$code)
-                ->whereDate('expired_date','<', Carbon::today())
                 ->first();
 
-        return response()->json($data, 200);
+        // dd($data);
+        $skrg = Carbon::today();
+        $status_exp = 0;
+        if($data->expired_date < $skrg){
+            $status_exp = 1;
+        }
+        $pesan = array(
+            'id' => $data->id,
+            'code' => $data->code,
+            'status' => $data->status,
+            'nominal' => $data->nominal,
+            'expired_date' => Carbon::parse($data->created_at)->format('D, d M Y'),
+            'created_at' => Carbon::parse($data->created_at)->format('d M Y H:i'),
+            'remark' => $data->remark,
+            'shift_pattern' => $data->shift_pattern,
+            'name' => $data->name,
+            'phone_number' => $data->phone_number,
+            'position' => $data->position,
+            'bento_box' => $data->bento_box,
+            'status_exp' => $status_exp,
+        );
+        return response()->json($pesan, 200);
     }
 
     public function useVoucher(Request $request){

@@ -26,4 +26,24 @@ class GuestListController extends Controller
 		Excel::import(new GuestListImport, $request->file('file')->store('temp') );
 		// dd($file);
 	}
+
+	public function store(Request $request){
+
+		$store = GuestListModel::create([
+			'shift_pattern' =>$request->shift_pattern,
+			'name' => $request->name,
+			'phone_number' => $request->phone_number,
+			'position' => $request->position,
+			'bento_box' => $request->bento_box,
+			'remark' => $request->remark
+		]);
+
+		$pesan = array(
+			'code' => 200,
+			'message' => 'Data berhasil ditambahkan.'
+		);
+
+		return response()->json($store, 200);
+
+	}
 }
