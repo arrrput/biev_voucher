@@ -29,7 +29,9 @@ class GuestListController extends Controller
 
 	public function store(Request $request){
 
-		$store = GuestListModel::create([
+		$store = GuestListModel::updateOrCreate([
+				'id' => $request->id
+			],[
 			'shift_pattern' =>$request->shift_pattern,
 			'name' => $request->name,
 			'phone_number' => $request->phone_number,
