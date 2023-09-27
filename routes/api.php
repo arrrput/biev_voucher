@@ -27,6 +27,8 @@ Route::get('/create_voucher', [QrCodeVoucherController::class, 'index']);
 
 //Guest List Create
 Route::post('/guest_list/store', [GuestListController::class, 'store']);
+//Guest List Delete
+Route::delete('/guest_list/delete/{id}', [GuestListController::class, 'destroy']);
 
 
 Route::middleware('auth:sanctum')->group(function () {

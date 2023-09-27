@@ -48,4 +48,13 @@ class GuestListController extends Controller
 		return response()->json($store, 200);
 
 	}
+
+	public function destroy($id){
+        GuestListModel::find($id)->delete($id);
+
+            return Response()->json([
+				'code' => 200,
+                'message' => 'Data deleted successfully!'
+            ], 200);
+    }
 }
