@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\GuestListModel;
 use App\Models\QrCodeVoucherModel;
+use App\Models\VoucherReportModel;
 use Illuminate\Support\Facades\DB;
 
 class QrCodeVoucherController extends Controller
@@ -14,7 +15,7 @@ class QrCodeVoucherController extends Controller
     public function index(Request $request){
 
         
-        $skrg = Carbon::now()->format('Y-m-d');
+        $skrg = Carbon::now();
         $bulan_tahun = Carbon::now()->addMonth(1)->format('Y-m');
         $tgl_exp = $bulan_tahun."-05";
        
@@ -23,16 +24,21 @@ class QrCodeVoucherController extends Controller
         if(empty($cek)){
             $guest = GuestListModel::select('id', 'name')->get();
             foreach($guest as $list){
-                for($i =0; $i < 3; $i++){
-                    $data = QrCodeVoucherModel::create(
-                        [
-                            'id_guest_list' => $list->id,
-                            'status' => 0,
-                            'nominal' => 0,
-                            'expired_date' =>$tgl_exp
-                        ]
-                    );
+                for($j = 0; $j < 7; $j++){
+                    for($i =0; $i < 3; $i++){
+                        $data = QrCodeVoucherModel::create(
+                            [
+                                'id_guest_list' => $list->id,
+                                'status' => 0,
+                                'nominal' => 0,
+                                'expired_date' =>$tgl_exp,
+                                'created_at' => Carbon::now()->startOfWeek()->addDays($j),
+                                'updated_at' => Carbon::now()->startOfWeek()->addDays($j)
+                            ]
+                        );
+                    }
                 }
+                
             }
             $pesan = array('code' =>200,
                         'message' => 'QR Generate Succussfully'
@@ -59,8 +65,21 @@ class QrCodeVoucherController extends Controller
         if($data->expired_date < $skrg){
             $status_exp = 1;
         }
+
+        if($data->status == 0){
+            $update_qr = QrCodeVoucherModel::select('*')
+                    ->where('code',$code)
+                    ->first();
+            $update_qr->status = 1;
+            $update_qr->nominal = 0;
+            $update_qr->remark = "N/A";
+            $update_qr->save();
+        }
+        
+
         $pesan = array(
             'id' => $data->id,
+            'id_guest_list' => $data->id_guest_list,
             'code' => $data->code,
             'status' => $data->status,
             'nominal' => $data->nominal,
@@ -78,18 +97,21 @@ class QrCodeVoucherController extends Controller
     }
 
     public function useVoucher(Request $request){
-        $code = QrCodeVoucherModel::select('*')->where('code', $request->code)->first();
-        
-        $code->status = 1;
-        $code->nominal = $request->nominal;
-        $code->remark = $request->remark;
-        $code->save();
+       
+        $store = VoucherReportModel::create([
+            'id_guest_list' => $request->id_guest_list,
+            'name' => $request->name,
+            'position' => $request->position,
+            'nominal' => $request->nominal,
+            'remark' => $request->remark,
+        ]);
 
         $pesan = array(
             'code'=>200,
             'message' => 'Voucher Successfully use!'
         );
         return response()->json($pesan, 200);
+        
     }
 
     public function getQr($id){
@@ -105,7 +127,8 @@ class QrCodeVoucherController extends Controller
         $data = QrCodeVoucherModel::select('guest_list.id','guest_list.name','qrcode_voucher.code','qrcode_voucher.expired_date','qrcode_voucher.created_at')
                 ->join('guest_list','qrcode_voucher.id_guest_list','guest_list.id')
                 ->where('guest_list.id', $id)
-                ->whereDate('qrcode_voucher.created_at',Carbon::today())
+                ->whereDate('qrcode_voucher.created_at','>=',Carbon::now()->startOfWeek())
+                ->whereDate('qrcode_voucher.created_at','<=',Carbon::now()->endOfWeek())
                 ->get();
         foreach($data as $key => $list){
             $response[$key] = array(
@@ -113,14 +136,14 @@ class QrCodeVoucherController extends Controller
                 'name'=> $list->name,
                 'code'=> $list->code,
                 'expired_date'=> Carbon::parse($list->expired_date)->format('d M Y'),
-                'created_at'=>   Carbon::parse($list->created_at)->format('d M Y H:i') 
+                'created_at'=>   Carbon::parse($list->created_at)->format('d M Y ') 
             );
         }
         return response()->json($response, 200);
     }
 
     public function reportQr(){
-        $total_nominal = QrCodeVoucherModel::select('status')->where('status',1)
+        $total_nominal = VoucherReportModel::select('nominal')
                     ->sum('nominal');
 
         $total_qr =  QrCodeVoucherModel::where('status',1)
@@ -129,8 +152,7 @@ class QrCodeVoucherController extends Controller
        
         $list_guest = GuestListModel::select('*')->get();
         foreach($list_guest as $key => $list){
-            $nominal_qr = QrCodeVoucherModel::where('status',1)
-                        ->where('id_guest_list', $list->id)
+            $nominal_qr = VoucherReportModel::select('nominal')->where('id_guest_list', $list->id)
                         ->sum('nominal');
             $list_data[$key] = array(
                 'id'=> $list->id,
@@ -153,9 +175,8 @@ class QrCodeVoucherController extends Controller
     }
 
     public function reportGuest($id){
-        $data = QrCodeVoucherModel::select('*')
+        $data = VoucherReportModel::select('*')
                 ->where('id_guest_list', $id)
-                ->where('status', 1)
                 ->orderBy('id','DESC')
                 ->get();
 
