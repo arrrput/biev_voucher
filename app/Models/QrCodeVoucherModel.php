@@ -12,7 +12,7 @@ class QrCodeVoucherModel extends Model
     use HasFactory;
 
     public $table = 'qrcode_voucher';
-    protected $fillable = ['id_guest_list', 'code', 'status', 'nominal', 'remark', 'expired_date','created_at','updated_at'];
+    protected $fillable = ['id_guest_list', 'code', 'status', 'nominal', 'remark', 'expired_date','id_user','created_at','updated_at'];
     
     protected static function uniqueCodeColumnName()
     {
