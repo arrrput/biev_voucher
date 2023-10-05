@@ -146,10 +146,10 @@ class QrCodeVoucherController extends Controller
     }
 
     public function reportQr(){
-        $total_nominal = VoucherReportModel::select('nominal')
-                    ->sum('nominal');
+       
 
         $total_qr =  QrCodeVoucherModel::where('status',1)
+                        ->where('id_user', Auth::user()->id)
                         ->whereDate('updated_at', Carbon::now())
                         ->count('status');
         $total_guest =  GuestListModel::count('id');
@@ -157,7 +157,8 @@ class QrCodeVoucherController extends Controller
         $list_guest = GuestListModel::select('*')   
                     ->get();
         foreach($list_guest as $key => $list){
-            $nominal_qr = QrCodeVoucherModel::select('status','nominal')
+            $nominal_qr = QrCodeVoucherModel::select('status','nominal','id_user')
+                        // ->where('id_user', Auth::user()->id)
                         ->where('id_guest_list', $list->id)
                         ->whereDate('updated_at', Carbon::now())
                         ->sum('status');
@@ -189,7 +190,7 @@ class QrCodeVoucherController extends Controller
                 ->join('guest_list','qrcode_voucher.id_guest_list','guest_list.id')
                 ->where('status',1)
                 ->where('id_guest_list', $id)
-                ->where('qrcode_voucher.id_user', Auth::user()->id)
+                // ->where('qrcode_voucher.id_user', Auth::user()->id)
                 ->whereDate('qrcode_voucher.updated_at',Carbon::now())
                 ->orderBy('id','DESC')
                 ->get();
