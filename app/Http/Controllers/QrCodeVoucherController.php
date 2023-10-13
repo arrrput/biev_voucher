@@ -25,13 +25,13 @@ class QrCodeVoucherController extends Controller
         $skrg = Carbon::now();
         $bulan_tahun = Carbon::now()->addMonth(1)->format('Y-m');
         $tgl_exp = $bulan_tahun."-05";
-       
         $cek = QrCodeVoucherModel::select('created_at')
                 ->whereDate('created_at',Carbon::now()->addDays(3))->first();
+        // dd($cek);
         if(empty($cek)){
             $guest = GuestListModel::select('id', 'name')->get();
             foreach($guest as $list){
-                Carbon::now()->addWeeks(1);
+               $skrg = Carbon::now()->addDays(3);
                 for($j = 0; $j < 7; $j++){
                     for($i =0; $i < 3; $i++){
                         $data = QrCodeVoucherModel::create(
@@ -40,8 +40,8 @@ class QrCodeVoucherController extends Controller
                                 'status' => 0,
                                 'nominal' => 0,
                                 'expired_date' =>$tgl_exp,
-                                'created_at' => Carbon::now()->startOfWeek()->addDays($j),
-                                'updated_at' => Carbon::now()->startOfWeek()->addDays($j)
+                                'created_at' => $skrg->startOfWeek()->addDays($j),
+                                'updated_at' => $skrg->startOfWeek()->addDays($j)
                             ]
                         );
                     }
