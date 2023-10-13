@@ -29,6 +29,7 @@ Route::post('/guest_list/store', [GuestListController::class, 'store']);
 //Guest List Delete
 Route::delete('/guest_list/delete/{id}', [GuestListController::class, 'destroy']);
 
+Route::get('/report_voucher/date', [QrCodeVoucherController::class, 'date']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [UserController::class,'logout']); 

@@ -13,18 +13,25 @@ use Illuminate\Support\Facades\Auth;
 class QrCodeVoucherController extends Controller
 {
     //
-    public function index(Request $request){
 
-        
+    public function date(){
+        $now = Carbon::now()->addDays(3);
+
+        dd($now);
+    } 
+
+
+    public function index(Request $request){
         $skrg = Carbon::now();
         $bulan_tahun = Carbon::now()->addMonth(1)->format('Y-m');
         $tgl_exp = $bulan_tahun."-05";
        
         $cek = QrCodeVoucherModel::select('created_at')
-                ->whereDate('created_at',Carbon::today())->first();
+                ->whereDate('created_at',Carbon::now()->addDays(3))->first();
         if(empty($cek)){
             $guest = GuestListModel::select('id', 'name')->get();
             foreach($guest as $list){
+                Carbon::now()->addWeeks(1);
                 for($j = 0; $j < 7; $j++){
                     for($i =0; $i < 3; $i++){
                         $data = QrCodeVoucherModel::create(
@@ -127,11 +134,12 @@ class QrCodeVoucherController extends Controller
     }
 
     public function getUserQR($id){
+        $skrg = Carbon::now()->addDays(3);
         $data = QrCodeVoucherModel::select('guest_list.id','guest_list.name','qrcode_voucher.code','qrcode_voucher.expired_date','qrcode_voucher.created_at')
                 ->join('guest_list','qrcode_voucher.id_guest_list','guest_list.id')
                 ->where('guest_list.id', $id)
-                ->whereDate('qrcode_voucher.created_at','>=',Carbon::now()->startOfWeek())
-                ->whereDate('qrcode_voucher.created_at','<=',Carbon::now()->endOfWeek())
+                ->whereDate('qrcode_voucher.created_at','>=',$skrg->startOfWeek())
+                ->whereDate('qrcode_voucher.created_at','<=',$skrg->endOfWeek())
                 ->get();
         foreach($data as $key => $list){
             $response[$key] = array(
