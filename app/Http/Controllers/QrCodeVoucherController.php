@@ -228,7 +228,7 @@ class QrCodeVoucherController extends Controller
         foreach($list_guest as $key => $list){
             $nominal_qr = QrCodeVoucherModel::select('status','nominal','id_user')
                         ->where('id_guest_list', $list->id)
-                        ->whereDate('updated_at', Carbon::now());
+                        ->whereDate('updated_at', $date);
             if(Auth::user()->status ==1){
                 $nominal_qr->where('id_user', Auth::user()->id);
             }
