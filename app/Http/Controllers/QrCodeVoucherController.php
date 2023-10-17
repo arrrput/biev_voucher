@@ -207,7 +207,7 @@ class QrCodeVoucherController extends Controller
         
         foreach($data->get() as $key => $list){
             $pesan[$key] = array(
-                'remark' => $list->code,
+                'remark' => $list->code.' (date of issue '. $list->terbit .')',
                 'date'=>  Carbon::parse($list->updated_at)->format('D, d M Y, H:i:s'),
                 'nominal' => "Rp ". number_format($list->status * 50000),
                 'code' => $list->code.' (date of issue '. $list->terbit .')'
