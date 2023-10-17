@@ -195,7 +195,7 @@ class QrCodeVoucherController extends Controller
 
 
     public function reportGuest($id, $date){
-        $data = QrCodeVoucherModel::select('guest_list.*','qrcode_voucher.code','qrcode_voucher.status',"qrcode_voucher.updated_at")
+        $data = QrCodeVoucherModel::select('guest_list.*','qrcode_voucher.code','qrcode_voucher.status',"qrcode_voucher.updated_at", 'qrcode_voucher.created_at as terbit')
                 ->join('guest_list','qrcode_voucher.id_guest_list','guest_list.id')
                 ->where('status',1)
                 ->where('id_guest_list', $id)
@@ -210,7 +210,7 @@ class QrCodeVoucherController extends Controller
                 'remark' => $list->code,
                 'date'=>  Carbon::parse($list->updated_at)->format('D, d M Y, H:i:s'),
                 'nominal' => "Rp ". number_format($list->status * 50000),
-                'code' => $list->code
+                'code' => $list->code.' (date of issue '. $list->terbit .')'
             );
         }
 
