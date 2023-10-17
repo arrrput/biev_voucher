@@ -242,7 +242,8 @@ class QrCodeVoucherController extends Controller
                 'position'=> $list->position,
                 'phone_number'=> $list->phone_number,
                 'nominal' => "Rp ". number_format($nominal_qr->sum('status') * 50000),
-                'total_qr' => $nominal_qr->sum('status') ." Voucher"
+                'total_qr' => $nominal_qr->sum('status') ." Voucher",
+                'updated_at' => $date
             );
         }
         
