@@ -46,4 +46,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/create_voucher', [QrCodeVoucherController::class, 'index']);
     
     Route::get('/report_voucher', [QrCodeVoucherController::class, 'reportQr']);
+    Route::get('/report_voucher/date/{date}', [QrCodeVoucherController::class, 'reportByDate']);
 });

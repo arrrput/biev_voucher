@@ -154,10 +154,7 @@ class QrCodeVoucherController extends Controller
     }
 
     public function reportQr(){
-       
-
-        $total_qr =  QrCodeVoucherModel::where('status',1)
-                        
+        $total_qr =  QrCodeVoucherModel::where('status',1)     
                         ->whereDate('updated_at', Carbon::now());
         if(Auth::user()->status ==1){
             $total_qr->where('id_user', Auth::user()->id);
@@ -194,6 +191,7 @@ class QrCodeVoucherController extends Controller
         return response()->json($pesan, 200);
     }
 
+
     public function reportGuest($id){
         $data = QrCodeVoucherModel::select('guest_list.*','qrcode_voucher.code','qrcode_voucher.status')
                 ->join('guest_list','qrcode_voucher.id_guest_list','guest_list.id')
@@ -214,6 +212,44 @@ class QrCodeVoucherController extends Controller
             );
         }
 
+        return response()->json($pesan, 200);
+    }
+
+    public function reportByDate($date){
+        $total_qr =  QrCodeVoucherModel::where('status',1)     
+                        ->whereDate('updated_at',$date);
+        if(Auth::user()->status ==1){
+            $total_qr->where('id_user', Auth::user()->id);
+        }
+        $total_guest =  GuestListModel::count('id');
+       
+        $list_guest = GuestListModel::select('*')   
+                    ->get();
+        foreach($list_guest as $key => $list){
+            $nominal_qr = QrCodeVoucherModel::select('status','nominal','id_user')
+                        ->where('id_guest_list', $list->id)
+                        ->whereDate('updated_at', Carbon::now());
+            if(Auth::user()->status ==1){
+                $nominal_qr->where('id_user', Auth::user()->id);
+            }
+            
+            $list_data[$key] = array(
+                'id'=> $list->id,
+                'name' => $list->name,
+                'position'=> $list->position,
+                'phone_number'=> $list->phone_number,
+                'nominal' => "Rp ". number_format($nominal_qr->sum('status') * 50000),
+                'total_qr' => $nominal_qr->sum('status') ." Voucher"
+            );
+        }
+        
+        $pesan = array(
+            'total_nominal' =>  number_format($total_qr->count('status') * 50000),
+            'total_qr_use' => $total_qr->count('status'),
+            'total_guest' => $total_guest,
+            'guest_list'=> $list_data          
+        );
+        
         return response()->json($pesan, 200);
     }
    
