@@ -24,7 +24,8 @@ Route::post('/guest_list/store', [GuestListController::class, 'store']);
 //Guest List Delete
 Route::delete('/guest_list/delete/{id}', [GuestListController::class, 'destroy']);
 
-Route::get('/report_voucher/date', [QrCodeVoucherController::class, 'date']);
+
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [UserController::class,'logout']); 
@@ -34,17 +35,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/use_voucher', [QrCodeVoucherController::class,'useVoucher']);  
     //Guest List 
     Route::get('/guest_list', [GuestListController::class, 'index']);
-    
+
+    Route::get('/report_voucher/date/{date}', [QrCodeVoucherController::class, 'reportByDate']);
 
     Route::get('/get_qr/{id}', [QrCodeVoucherController::class, 'getQr']);
     Route::get('/voucher/{code}', [QrCodeVoucherController::class, 'getVoucher']);
 
-    Route::get('/report_voucher/{id}', [QrCodeVoucherController::class, 'reportGuest']);
+    Route::get('/report_guest/{id}/{date}', [QrCodeVoucherController::class, 'reportGuest']);
     Route::get('/guest_voucher/{id}', [QrCodeVoucherController::class, 'getUserQR']);
 
     // generate QR
     Route::get('/create_voucher', [QrCodeVoucherController::class, 'index']);
     
     Route::get('/report_voucher', [QrCodeVoucherController::class, 'reportQr']);
-    Route::get('/report_voucher/date/{date}', [QrCodeVoucherController::class, 'reportByDate']);
+
+   
 });

@@ -162,6 +162,7 @@ class QrCodeVoucherController extends Controller
         $total_guest =  GuestListModel::count('id');
        
         $list_guest = GuestListModel::select('*')   
+                    ->orderBy('created_at','DESC')
                     ->get();
         foreach($list_guest as $key => $list){
             $nominal_qr = QrCodeVoucherModel::select('status','nominal','id_user')
@@ -177,7 +178,8 @@ class QrCodeVoucherController extends Controller
                 'position'=> $list->position,
                 'phone_number'=> $list->phone_number,
                 'nominal' => "Rp ". number_format($nominal_qr->sum('status') * 50000),
-                'total_qr' => $nominal_qr->sum('status') ." Voucher"
+                'total_qr' => $nominal_qr->sum('status') ." Voucher",
+                'updated_at' => Carbon::now()->format('Y-m-d')
             );
         }
         
@@ -192,23 +194,23 @@ class QrCodeVoucherController extends Controller
     }
 
 
-    public function reportGuest($id){
-        $data = QrCodeVoucherModel::select('guest_list.*','qrcode_voucher.code','qrcode_voucher.status')
+    public function reportGuest($id, $date){
+        $data = QrCodeVoucherModel::select('guest_list.*','qrcode_voucher.code','qrcode_voucher.status',"qrcode_voucher.updated_at")
                 ->join('guest_list','qrcode_voucher.id_guest_list','guest_list.id')
                 ->where('status',1)
                 ->where('id_guest_list', $id)
-                
-                ->whereDate('qrcode_voucher.updated_at',Carbon::now())
+                ->whereDate('qrcode_voucher.updated_at',$date)
                 ->orderBy('id','DESC');
         if(Auth::user()->status == 1){
             $data->where('qrcode_voucher.id_user', Auth::user()->id);
         }
+        
         foreach($data->get() as $key => $list){
             $pesan[$key] = array(
                 'remark' => $list->code,
                 'date'=>  Carbon::parse($list->updated_at)->format('D, d M Y, H:i:s'),
                 'nominal' => "Rp ". number_format($list->status * 50000),
-                'code' => $list->code,
+                'code' => $list->code
             );
         }
 
@@ -224,6 +226,7 @@ class QrCodeVoucherController extends Controller
         $total_guest =  GuestListModel::count('id');
        
         $list_guest = GuestListModel::select('*')   
+                    ->orderBy('created_at', 'DESC')
                     ->get();
         foreach($list_guest as $key => $list){
             $nominal_qr = QrCodeVoucherModel::select('status','nominal','id_user')
@@ -247,7 +250,8 @@ class QrCodeVoucherController extends Controller
             'total_nominal' =>  number_format($total_qr->count('status') * 50000),
             'total_qr_use' => $total_qr->count('status'),
             'total_guest' => $total_guest,
-            'guest_list'=> $list_data          
+            'guest_list'=> $list_data,
+            'updated_at' => $date          
         );
         
         return response()->json($pesan, 200);
