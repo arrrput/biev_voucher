@@ -24,6 +24,8 @@ Route::post('/guest_list/store', [GuestListController::class, 'store']);
 //Guest List Delete
 Route::delete('/guest_list/delete/{id}', [GuestListController::class, 'destroy']);
 
+// generate QR per user
+Route::get('/create_voucher/{id}/id_user', [QrCodeVoucherController::class, 'generateQrUser']);
 
 
 

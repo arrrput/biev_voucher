@@ -257,5 +257,49 @@ class QrCodeVoucherController extends Controller
         
         return response()->json($pesan, 200);
     }
+
+    public function generateQrUser($id){
+
+        $skrg = Carbon::now();
+        $bulan_tahun = Carbon::now()->addMonth(1)->format('Y-m');
+        $tgl_exp = $bulan_tahun."-05";
+        $cek = QrCodeVoucherModel::select('created_at')
+                ->whereDate('created_at',Carbon::now()->addDays(3))
+                ->where('id_guest_list', $id)
+                ->first();
+        // dd($cek);
+        if(empty($cek)){
+            // $guest = GuestListModel::select('id', 'name')
+            //         ->where('id_guest_list',$id)
+            //         ->first();
+            
+               $skrg = Carbon::now()->addDays(3);
+                for($j = 0; $j < 7; $j++){
+                    for($i =0; $i < 3; $i++){
+                        $data = QrCodeVoucherModel::create(
+                            [
+                                'id_guest_list' => $id,
+                                'status' => 0,
+                                'nominal' => 0,
+                                'expired_date' =>$tgl_exp,
+                                'created_at' => $skrg->startOfWeek()->addDays($j),
+                                'updated_at' => $skrg->startOfWeek()->addDays($j)
+                            ]
+                        );
+                    }
+                }
+                
+            
+            $pesan = array('code' =>200,
+                        'message' => 'QR Generate Succussfully'
+            );
+            return response()->json($pesan, 200);
+        }else{
+            $pesan = array('code' =>200,
+                        'message' => 'QR was generate before'
+            );
+            return response()->json($pesan, 200);
+        }   
+    }
    
 }
