@@ -38,11 +38,11 @@ class QrCodeVoucherController extends Controller
                 for($j = 0; $j < 7; $j++){  
                     // $hari = $j + 3;
                     // $tgl_exp = Carbon::now()->addDays($hari)->addMonth(1)->format('Y-m')."-05";
-                    if($bulan_tahun == $skrg->startOfWeek()->addDays($j)->format('Y-m')){
-                        $bulan_tahun = carbon::now()->addMonth(2)->format('Y-m');
-                        $tgl_exp = $bulan_tahun."-05";
-                        $bulan_tahun = Carbon::now()->addMonth(1)->format('Y-m');
-                    }
+                    // if($bulan_tahun == $skrg->startOfWeek()->addDays($j)->format('Y-m')){
+                    //     $bulan_tahun = carbon::now()->addMonth(2)->format('Y-m');
+                    //     $tgl_exp = $bulan_tahun."-05";
+                    //     $bulan_tahun = Carbon::now()->addMonth(1)->format('Y-m');
+                    // }
                     for($i =0; $i < 3; $i++){
                         
                         $data = QrCodeVoucherModel::create(
@@ -146,7 +146,7 @@ class QrCodeVoucherController extends Controller
     }
 
     public function getUserQR($id){
-        $skrg = Carbon::now()->addDays(1);
+        $skrg = Carbon::now()->addDays(3);
         $data = QrCodeVoucherModel::select('guest_list.id','guest_list.name','qrcode_voucher.code','qrcode_voucher.expired_date','qrcode_voucher.created_at')
                 ->join('guest_list','qrcode_voucher.id_guest_list','guest_list.id')
                 ->where('guest_list.id', $id)
@@ -276,7 +276,7 @@ class QrCodeVoucherController extends Controller
         $bulan_tahun = Carbon::now()->addMonth(1)->format('Y-m');
         $tgl_exp = $bulan_tahun."-05";
         $cek = QrCodeVoucherModel::select('created_at')
-                ->whereDate('created_at',Carbon::now()->addDays(1))
+                ->whereDate('created_at',Carbon::now()->addDays(3))
                 ->where('id_guest_list', $id)
                 ->first();
         // dd($cek);
@@ -285,7 +285,7 @@ class QrCodeVoucherController extends Controller
             //         ->where('id_guest_list',$id)
             //         ->first();
             
-               $skrg = Carbon::now()->addDays(1);
+               $skrg = Carbon::now()->addDays(3);
                 for($j = 0; $j < 7; $j++){
                     for($i =0; $i < 3; $i++){
                         $data = QrCodeVoucherModel::create(
