@@ -146,6 +146,7 @@ class QrCodeVoucherController extends Controller
                 ->where('guest_list.id', $id)
                 ->whereDate('qrcode_voucher.created_at','>=',$skrg->startOfWeek())
                 ->whereDate('qrcode_voucher.created_at','<=',$skrg->endOfWeek())
+                ->orderBy('qrcode_voucher.created_at','ASC')
                 ->get();
         foreach($data as $key => $list){
             $response[$key] = array(
