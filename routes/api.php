@@ -18,7 +18,8 @@ use App\Http\Controllers\QrCodeVoucherController;
 */
 
 Route::post('/login', [UserController::class,'login'])->name('login');
-
+// generate QR
+Route::get('/create_voucher', [QrCodeVoucherController::class, 'index']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -47,8 +48,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/guest_list/store', [GuestListController::class, 'store']);
     //Guest List Delete
     Route::delete('/guest_list/delete/{id}', [GuestListController::class, 'destroy']);
-
-
-    // generate QR
-Route::get('/create_voucher', [QrCodeVoucherController::class, 'index']);
 });
