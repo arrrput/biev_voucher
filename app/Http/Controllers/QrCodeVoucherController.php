@@ -76,7 +76,7 @@ class QrCodeVoucherController extends Controller
         // dd($data);
         $skrg = Carbon::today();
         $status_exp = 0;
-        if($data->expired_date < $skrg){
+        if($data->expired_date <= $skrg){
             $status_exp = 1;
         }
 
