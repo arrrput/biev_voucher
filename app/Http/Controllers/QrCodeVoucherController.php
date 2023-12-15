@@ -280,7 +280,7 @@ class QrCodeVoucherController extends Controller
             //         ->where('id_guest_list',$id)
             //         ->first();
             
-               $skrg = Carbon::now()->addDays(3);
+               $skrg = Carbon::now();
                 for($j = 0; $j < 7; $j++){
                     for($i =0; $i < 3; $i++){
                         $data = QrCodeVoucherModel::create(
