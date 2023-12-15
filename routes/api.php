@@ -18,6 +18,7 @@ use App\Http\Controllers\QrCodeVoucherController;
 */
 
 Route::post('/login', [UserController::class,'login'])->name('login');
+Route::get('/create_voucher/{id}/id_user', [QrCodeVoucherController::class, 'generateQrUser']);
 // generate QR
 Route::get('/create_voucher', [QrCodeVoucherController::class, 'index']);
 
@@ -41,7 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     
     // generate QR per user
-    Route::get('/create_voucher/{id}/id_user', [QrCodeVoucherController::class, 'generateQrUser']);
+    
     Route::get('/report_voucher', [QrCodeVoucherController::class, 'reportQr']);
 
    //Guest List Create
