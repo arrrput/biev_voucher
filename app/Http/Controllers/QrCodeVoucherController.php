@@ -15,7 +15,7 @@ class QrCodeVoucherController extends Controller
     //
 
     public function date(){
-        $now = Carbon::now()->addDays(3);
+        $now = Carbon::now()->subDays(3);
 
         dd($now);
     } 
@@ -27,13 +27,13 @@ class QrCodeVoucherController extends Controller
         $tgl_exp = $bulan_tahun."-05";
 
         $cek = QrCodeVoucherModel::select('created_at')
-                ->whereDate('created_at',Carbon::now()->addDays(3))->first();
+                ->whereDate('created_at',Carbon::now()->subDays(3))->first();
         // dd($cek);
         if(empty($cek)){
             $guest = GuestListModel::select('id', 'name')->get();
             foreach($guest as $list){
                 $bulan_tahun = Carbon::now()->addMonth(1)->format('Y-m');
-                $skrg = Carbon::now()->addDays(3);
+                $skrg = Carbon::now()->subDays(3);
                 
                 for($j = 0; $j < 7; $j++){  
                    
@@ -141,7 +141,7 @@ class QrCodeVoucherController extends Controller
     }
 
     public function getUserQR($id){
-        $skrg = Carbon::now()->addDays(3);
+        $skrg = Carbon::now()->subDays(3);
         $data = QrCodeVoucherModel::select('guest_list.id','guest_list.name','qrcode_voucher.code','qrcode_voucher.expired_date','qrcode_voucher.created_at')
                 ->join('guest_list','qrcode_voucher.id_guest_list','guest_list.id')
                 ->where('guest_list.id', $id)
@@ -272,7 +272,7 @@ class QrCodeVoucherController extends Controller
         $bulan_tahun = Carbon::now()->addMonth(1)->format('Y-m');
         $tgl_exp = $bulan_tahun."-05";
         $cek = QrCodeVoucherModel::select('created_at')
-                ->whereDate('created_at',Carbon::now()->addDays(3))
+                ->whereDate('created_at',Carbon::now()->subDays(3))
                 ->where('id_guest_list', $id)
                 ->first();
         // dd($cek);
@@ -281,7 +281,7 @@ class QrCodeVoucherController extends Controller
             //         ->where('id_guest_list',$id)
             //         ->first();
             
-               $skrg = Carbon::now()->addDays(3);
+               $skrg = Carbon::now()->subDays(3);
                 for($j = 0; $j < 7; $j++){
                     for($i =0; $i < 3; $i++){
                         $data = QrCodeVoucherModel::create(
