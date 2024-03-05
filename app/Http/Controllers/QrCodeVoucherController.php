@@ -73,7 +73,7 @@ class QrCodeVoucherController extends Controller
                 ->first();
 
         // dd($data);
-        $skrg = Carbon::today();
+        $skrg = Carbon::today()->addDays(1);
         $status_exp = 0;
         
         if($data->expired_date < $skrg){
@@ -82,14 +82,18 @@ class QrCodeVoucherController extends Controller
 
         if($data->status == 0){
             $user = Auth::user();
+
             $update_qr = QrCodeVoucherModel::select('*')
                     ->where('code',$code)
                     ->first();
-            $update_qr->status = 1;
-            $update_qr->nominal = 0;
-            $update_qr->remark = "N/A";
-            $update_qr->id_user = $user->id;
-            $update_qr->save();
+            if($status_exp == 0){
+                $update_qr->status = 1;
+                $update_qr->nominal = 0;
+                $update_qr->remark = "N/A";
+                $update_qr->id_user = $user->id;
+                $update_qr->save();
+            }
+           
         }
         
 
