@@ -165,6 +165,35 @@ class QrCodeVoucherController extends Controller
         return response()->json($response, 200);
     }
 
+    public function getUserQRWeek($id, $w){
+        if($w == 1){
+            $first = Carbon::now()->subWeek()->startOfWeek();
+            $last = Carbon::now()->subWeek()->endOfWeek();
+        }
+        if($w == 2){
+            $first = Carbon::now()->addWeek()->startOfWeek();
+            $last = Carbon::now()->addWeek()->endOfWeek();
+        }
+        $data = QrCodeVoucherModel::select('guest_list.id','guest_list.name','qrcode_voucher.code','qrcode_voucher.expired_date','qrcode_voucher.created_at')
+                ->join('guest_list','qrcode_voucher.id_guest_list','guest_list.id')
+                ->where('guest_list.id', $id)
+                ->whereDate('qrcode_voucher.created_at','>=', $first)
+                ->whereDate('qrcode_voucher.created_at','<=', $last)
+                ->orderBy('qrcode_voucher.created_at','ASC')
+                ->get();
+
+        foreach($data as $key => $list){
+            $response[$key] = array(
+                'id'=> $list->id,
+                'name'=> $list->name,
+                'code'=> $list->code,
+                'expired_date'=> Carbon::parse($list->expired_date)->format('d M Y'),
+                'created_at'=>   Carbon::parse($list->created_at)->format('d M Y ') 
+            );
+        }
+        return response()->json($response, 200);
+    }
+
     public function reportQr(){
         $total_qr =  QrCodeVoucherModel::where('status',1)     
                         ->whereDate('updated_at', Carbon::now());
@@ -281,9 +310,6 @@ class QrCodeVoucherController extends Controller
                 ->first();
         // dd($cek);
         if(empty($cek)){
-            // $guest = GuestListModel::select('id', 'name')
-            //         ->where('id_guest_list',$id)
-            //         ->first();
             
                $skrg = Carbon::now()->addDays(1);
                 for($j = 0; $j < 7; $j++){
@@ -299,8 +325,53 @@ class QrCodeVoucherController extends Controller
                             ]
                         );
                     }
-                }
-                
+                }     
+            
+            $pesan = array('code' =>200,
+                        'message' => 'QR Generate Succussfully'
+            );
+            return response()->json($pesan, 200);
+        }else{
+            $pesan = array('code' =>200,
+                        'message' => 'QR was generate before'
+            );
+            return response()->json($pesan, 200);
+        }   
+    }
+
+    public function generateQrWeek($id, $w){
+        if($w =='1'){
+            $skrg =  Carbon::now()->subWeek()->startOfWeek();
+            $bulan_tahun = $skrg->addMonth(1)->format('Y-m');
+        }
+        if($w =='2'){
+            $skrg =  Carbon::now()->addWeek()->startOfWeek();
+            $bulan_tahun = $skrg->addMonth(1)->format('Y-m');
+        }
+        
+        $tgl_exp = $bulan_tahun."-05";
+        $cek = QrCodeVoucherModel::select('created_at')
+                ->whereDate('created_at',Carbon::now()->addDays(1))
+                ->where('id_guest_list', $id)
+                ->first();
+        // dd($cek);
+        if(empty($cek)){
+            
+               $skrg = Carbon::now()->addDays(1);
+                for($j = 0; $j < 7; $j++){
+                    for($i =0; $i < 3; $i++){
+                        $data = QrCodeVoucherModel::create(
+                            [
+                                'id_guest_list' => $id,
+                                'status' => 0,
+                                'nominal' => 0,
+                                'expired_date' =>$tgl_exp,
+                                'created_at' => $skrg->startOfWeek()->addDays($j),
+                                'updated_at' => $skrg->startOfWeek()->addDays($j)
+                            ]
+                        );
+                    }
+                }     
             
             $pesan = array('code' =>200,
                         'message' => 'QR Generate Succussfully'

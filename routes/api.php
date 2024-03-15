@@ -39,8 +39,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/report_guest/{id}/{date}', [QrCodeVoucherController::class, 'reportGuest']);
     Route::get('/guest_voucher/{id}', [QrCodeVoucherController::class, 'getUserQR']);
+    Route::get('/guest_voucher/{id}/week/{w}', [QrCodeVoucherController::class, 'getUserQRWeek']);
 
-    
+    Route::get('/create_voucher/{id}/id_user/{w}/week', [QrCodeVoucherController::class, 'generateQrWeek']);
+
     // generate QR per user
     
     Route::get('/report_voucher', [QrCodeVoucherController::class, 'reportQr']);
