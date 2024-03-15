@@ -166,11 +166,12 @@ class QrCodeVoucherController extends Controller
     }
 
     public function getUserQRWeek($id, $w){
-        if($w == 1){
+        if($w === '1'){
             $first = Carbon::now()->subWeek()->startOfWeek();
             $last = Carbon::now()->subWeek()->endOfWeek();
         }
-        if($w == 2){
+        
+        if($w === '2'){
             $first = Carbon::now()->addWeek()->startOfWeek();
             $last = Carbon::now()->addWeek()->endOfWeek();
         }
@@ -340,24 +341,29 @@ class QrCodeVoucherController extends Controller
     }
 
     public function generateQrWeek($id, $w){
-        if($w =='1'){
+        if($w ==='1'){
             $skrg =  Carbon::now()->subWeek()->startOfWeek();
             $bulan_tahun = $skrg->addMonth(1)->format('Y-m');
         }
-        if($w =='2'){
+        if($w ==='2'){
             $skrg =  Carbon::now()->addWeek()->startOfWeek();
             $bulan_tahun = $skrg->addMonth(1)->format('Y-m');
         }
-        
+        // dd($skrg);
         $tgl_exp = $bulan_tahun."-05";
         $cek = QrCodeVoucherModel::select('created_at')
-                ->whereDate('created_at',Carbon::now()->addDays(1))
+                ->whereDate('created_at',$skrg)
                 ->where('id_guest_list', $id)
                 ->first();
         // dd($cek);
         if(empty($cek)){
-            
-               $skrg = Carbon::now()->addDays(1);
+            if($w ==='1'){
+                $skrg = Carbon::now()->subWeek()->startOfWeek();
+            }
+            if($w ==='2'){
+                $skrg = Carbon::now()->addWeek()->startOfWeek();
+            }
+                
                 for($j = 0; $j < 7; $j++){
                     for($i =0; $i < 3; $i++){
                         $data = QrCodeVoucherModel::create(
